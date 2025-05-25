@@ -310,7 +310,8 @@ module Formatter =
 
                     let beforePointer =
                         if pointerCol > 0 then
-                            String(lineChars.[0 .. (pointerCol - 1)])
+                            let beforePointerStr = String(lineChars.[0 .. (pointerCol - 1)])
+                            beforePointerStr.Replace("│", colorText Color.BrightCyan "│")
                         else
                             ""
 
