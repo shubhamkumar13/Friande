@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="AnsiColors.fs" />
+    <Compile Include="Diagnostics.fs" />
+    <Compile Include="SourceCode.fs" />
+    <Compile Include="Formatter.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>
 
