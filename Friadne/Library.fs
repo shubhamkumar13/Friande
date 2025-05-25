@@ -67,6 +67,23 @@ module AnsiColors =
     let colorAndStyle (color: Color) (style: Style) (text: string) =
         $"\u001b[{styleCode style};{colorCode color}m{text}\u001b[0m"
 
+/// Special symbols (such as separators, etc.) that appear in the diagnostic message
+module Symbols =
+    let Vertical = '│'
+    let Horizontal = '─'
+    let BottomLeft = "└─"
+
+    let UnderlineInner = '^'
+    let UnderlineMiddle = '~'
+    let UnderlineOuter = '-'
+
+    let BoxTopLeft = '╭'
+    let BoxTopRight = '╮'
+    let BoxBottomLeft = '╰'
+    let BoxBottomRight = '╯'
+    let BoxHorizontal = '─'
+    let BoxVertical = "│ "
+
 type Position = { Line: int; Column: int }
 type Range = { Start: Position; End: Position }
 type Location = { FileName: string; Range: Range }
@@ -220,15 +237,14 @@ module Formatter =
                     let startCol = max 0 (ann.Range.Start.Column - 1)
                     let endCol = max startCol (ann.Range.End.Column - 1)
 
-                    let underlineChar =
-                        match level with
-                        | 0 -> '^' // Innermost (rightmost)
-                        | 1 -> '~' // Middle
-                        | _ -> '-' // Outer
-
-                    for j in startCol..endCol do
-                        if j < maxColumn then
-                            lineChars.[j] <- underlineChar)
+                    seq { startCol..endCol }
+                    |> Seq.filter (fun j -> j < maxColumn)
+                    |> Seq.iter (fun j ->
+                        lineChars.[j] <-
+                            match level with
+                            | 0 -> Symbols.UnderlineInner
+                            | 1 -> Symbols.UnderlineMiddle
+                            | _ -> Symbols.UnderlineOuter))
 
                 let underlineStr = String(lineChars).TrimEnd()
 
@@ -252,12 +268,12 @@ module Formatter =
                     if level = 0 then
                         // Innermost: single vertical line at start
                         if startCol < maxColumn then
-                            lineChars.[startCol] <- '│'
+                            lineChars.[startCol] <- Symbols.Vertical
                     else if
                         // Outer levels: vertical lines at start and end to show "wrapping"
                         startCol < maxColumn
                     then
-                        lineChars.[startCol] <- '│')
+                        lineChars.[startCol] <- Symbols.Vertical)
 
                 let lineStr = String(lineChars).TrimEnd()
 
@@ -295,7 +311,7 @@ module Formatter =
 
                         // Continue vertical lines from outer annotations, but only if within their range
                         if startCol < maxColumn && startCol <= currentPointerCol then
-                            lineChars.[startCol] <- '│'
+                            lineChars.[startCol] <- Symbols.Vertical
 
                         if
                             outerLevel > 0
@@ -303,15 +319,19 @@ module Formatter =
                             && endCol <> startCol
                             && endCol > currentPointerCol
                         then
-                            lineChars.[endCol] <- '│')
+                            lineChars.[endCol] <- Symbols.Vertical)
 
-                    let pointer = "└─"
+                    let pointer = Symbols.BottomLeft
                     let pointerCol = max 0 (ann.Range.Start.Column - 1)
 
                     let beforePointer =
                         if pointerCol > 0 then
                             let beforePointerStr = String(lineChars.[0 .. (pointerCol - 1)])
-                            beforePointerStr.Replace("│", colorText Color.BrightCyan "│")
+
+                            beforePointerStr.Replace(
+                                Symbols.Vertical.ToString(),
+                                colorText Color.BrightCyan (Symbols.Vertical.ToString())
+                            )
                         else
                             ""
 
@@ -359,7 +379,7 @@ module Renderer =
         let displayWidth = getDisplayWidth content + 1
         let padding = max 0 (maxWidth - displayWidth)
         let paddedContent = content + String(' ', padding)
-        "│ " + paddedContent
+        Symbols.BoxVertical + paddedContent
 
     /// Render Full Diagnostic Message
     let renderDiagnostic (diagnostic: Diagnostic) : string =
@@ -423,8 +443,15 @@ module Renderer =
             contentLines.RemoveAt(contentLines.Count - 1)
 
         // Build the final output with box borders
-        let topBorder = "╭" + String('─', boxWidth) + "╮"
-        let bottomBorder = "╰" + String('─', boxWidth) + "╯"
+        let topBorder =
+            Symbols.BoxTopLeft.ToString()
+            + String(Symbols.BoxHorizontal, boxWidth)
+            + Symbols.BoxTopRight.ToString()
+
+        let bottomBorder =
+            Symbols.BoxBottomLeft.ToString()
+            + String(Symbols.BoxHorizontal, boxWidth)
+            + Symbols.BoxBottomRight.ToString()
 
         sb.AppendLine topBorder |> ignore
 
