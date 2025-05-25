@@ -362,7 +362,13 @@ module Formatter =
             underlines @ connectors @ messages
 
     /// Format Source Code Line with improved multi-level annotations
-    let formatSourceLine (lines: string[]) (lineNum: int) (width: int) (annotations: Annotation list) =
+    let formatSourceLine
+        (lines: string[])
+        (lineNum: int)
+        (width: int)
+        (annotations: Annotation list)
+        (level: DiagnosticLevel)
+        =
         match SourceCode.getLine lines lineNum with
         | Some line ->
             let hasAnnotations = not annotations.IsEmpty
@@ -397,7 +403,6 @@ module Renderer =
 
     /// Render Full Diagnostic Message
     let renderDiagnostic (diagnostic: Diagnostic) : string =
-        let sb = StringBuilder()
         let lines = SourceCode.readSourceFile diagnostic.Location.FileName
         let boxWidth = 80 // Fixed width for the diagnostic box
 
@@ -428,12 +433,13 @@ module Renderer =
             |> Map.ofList
 
         // Add Code Lines
-        for lineNum in startLine..endLine do
+        seq { startLine..endLine }
+        |> Seq.collect (fun lineNum ->
             let lineAnnotations =
                 annotationsByLine |> Map.tryFind lineNum |> Option.defaultValue []
 
-            let sourceLines = formatSourceLine lines lineNum lineWidth lineAnnotations
-            sourceLines |> List.iter contentLines.Add
+            formatSourceLine lines lineNum lineWidth lineAnnotations diagnostic.Level)
+        |> Seq.iter contentLines.Add
 
         contentLines.Add ""
 
@@ -456,7 +462,7 @@ module Renderer =
               && String.IsNullOrWhiteSpace(contentLines.[contentLines.Count - 1]) do
             contentLines.RemoveAt(contentLines.Count - 1)
 
-        // Build the final output with box borders
+        // Build the final output lines with box borders
         let topBorder =
             Symbols.BoxTopLeft.ToString()
             + String(Symbols.BoxHorizontal, boxWidth)
@@ -467,17 +473,17 @@ module Renderer =
             + String(Symbols.BoxHorizontal, boxWidth)
             + Symbols.BoxBottomRight.ToString()
 
-        sb.AppendLine topBorder |> ignore
+        // Wrap content lines with borders
+        let wrappedContentLines =
+            contentLines
+            |> Seq.map (fun contentLine -> wrapWithBorder contentLine boxWidth)
+            |> Seq.toList
 
-        // Add each content line wrapped with borders
-        for contentLine in contentLines do
-            let wrappedLine = wrapWithBorder contentLine boxWidth
-            sb.AppendLine wrappedLine |> ignore
+        // Combine all parts into a single list of lines
+        let finalLines = [ topBorder ] @ wrappedContentLines @ [ bottomBorder; "" ]
 
-        sb.AppendLine bottomBorder |> ignore
-        sb.AppendLine() |> ignore // Add space between diagnostics
-
-        sb.ToString()
+        // Join all lines with newlines to get the final string output
+        String.Join(Environment.NewLine, finalLines)
 
 /// Diagnostics Module
 module Diagnostics =
