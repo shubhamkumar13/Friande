@@ -221,6 +221,20 @@ module Formatter =
         if annotations.IsEmpty then
             []
         else
+            // Calculate the overall color for shared line elements based on the most severe annotation on this line
+            let overallLineAnnotationColor =
+                let levels = annotations |> List.map (fun ann -> ann.Level)
+
+                let severity =
+                    function
+                    | DiagnosticLevel.Error -> 4
+                    | DiagnosticLevel.Warning -> 3
+                    | DiagnosticLevel.Info -> 2
+                    | DiagnosticLevel.Hint -> 1
+
+                let mostSevereLevelOnLine = levels |> List.maxBy severity
+                getAnnotationColor mostSevereLevelOnLine
+
             let annotationsWithLevels = assignDisplayLevels annotations
             let baseSpaces = createEmptyLine width
 
@@ -249,7 +263,7 @@ module Formatter =
                 let underlineStr = String(lineChars).TrimEnd()
 
                 if underlineStr.Length > 0 then
-                    [ baseSpaces + colorText Color.BrightRed underlineStr ]
+                    [ baseSpaces + colorText overallLineAnnotationColor underlineStr ]
                 else
                     []
 
@@ -278,7 +292,7 @@ module Formatter =
                 let lineStr = String(lineChars).TrimEnd()
 
                 if lineStr.Length > 0 then
-                    [ baseSpaces + colorText Color.BrightCyan lineStr ]
+                    [ baseSpaces + colorText overallLineAnnotationColor lineStr ]
                 else
                     []
 
@@ -330,7 +344,7 @@ module Formatter =
 
                             beforePointerStr.Replace(
                                 Symbols.Vertical.ToString(),
-                                colorText Color.BrightCyan (Symbols.Vertical.ToString())
+                                colorText (getAnnotationColor ann.Level) (Symbols.Vertical.ToString())
                             )
                         else
                             ""

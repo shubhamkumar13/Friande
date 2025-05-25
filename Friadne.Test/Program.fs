@@ -28,13 +28,13 @@ let main argv =
     let location =
         { FileName = argv.[0]
           Range =
-            { Start = { Line = 2; Column = 9 }
-              End = { Line = 2; Column = 19 } } }
+            { Start = { Line = 18; Column = 5 }
+              End = { Line = 18; Column = 5 } } }
 
     Diagnostics.createWarning "FS" 0002 "Unused variable" location
     |> Diagnostics.withAnnotation
         { Start = { Line = 18; Column = 5 }
-          End = { Line = 18; Column = 6 } }
+          End = { Line = 18; Column = 5 } }
         "Variable 'x' is never used"
         DiagnosticLevel.Warning
     |> Diagnostics.withHelp "Consider removing this variable or using it in your code"
