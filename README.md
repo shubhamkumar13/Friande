@@ -1,6 +1,14 @@
-# Friadne: A Compiler Diagnostic Library for F#
+<div align="center">
 
 ![screenshot](./.github/Screenshot%20from%202025-05-25%2016-41-02.png)
+
+# Friadne
+
+*Simple and zero-deps Compiler Diagnostic Library for F#*
+
+[![NuGet version](https://badge.fury.io/nu/Friadne.svg)](https://badge.fury.io/nu/Friadne) [![Build and Test](https://github.com/muqiuhan/Friande/actions/workflows/ci.yml/badge.svg)](https://github.com/muqiuhan/Friande/actions/workflows/ci.yml)
+
+</div>
 
 ## How to Use
 

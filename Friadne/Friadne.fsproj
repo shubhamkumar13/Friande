@@ -4,8 +4,8 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
-    <PackageId>Friadne.1.0.2</PackageId>
-    <Version>1.0.1</Version>
+    <PackageId>Friadne</PackageId>
+    <Version>1.0.2</Version>
     <Authors>Somhairle H. Marisol</Authors>
     <Company>The X-Files Research Institute</Company>
     <PackageTags>Diagnostics;F#;FSharp</PackageTags>
