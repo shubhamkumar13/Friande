@@ -1,9 +1,22 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
+    <PackageId>Friadne.1.0.2</PackageId>
+    <Version>1.0.1</Version>
+    <Authors>Somhairle H. Marisol</Authors>
+    <Company>The X-Files Research Institute</Company>
+    <PackageTags>Diagnostics;F#;FSharp</PackageTags>
+    <Description>A Compiler Diagnostic Library for F#</Description>
+    <RepositoryUrl>https://github.com/muqiuhan/Friadne</RepositoryUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Title>Friadne</Title>
+    <Copyright>Copyright (c) 2025 Somhairle H. Marisol</Copyright>
+    <PackageProjectUrl>https://github.com/muqiuhan/Friadne</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Types.fs" />
@@ -13,5 +26,9 @@
     <Compile Include="Format.fs" />
     <Compile Include="Render.fs" />
     <Compile Include="Diagnostics.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+    <None Include="LICENSE" Pack="true" PackagePath="" />
   </ItemGroup>
 </Project>
