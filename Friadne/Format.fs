@@ -145,7 +145,7 @@ module Formatter =
         let lineChars = Array.create maxColumn ' '
 
         annotationsWithLevels
-        |> List.iter (fun (ann, level) ->
+        |> List.iter (fun (ann, _level) ->
           let startCol = max 0 (ann.Range.Start.Column - 1)
 
           if startCol < maxColumn then
@@ -167,7 +167,7 @@ module Formatter =
             ann.Message |> Option.map (fun msg -> ann, lvl, msg))
 
         sorted
-        |> List.mapi (fun index (ann, level, message) ->
+        |> List.mapi (fun index (ann, _level, message) ->
           let maxColumn =
             annotations |> List.map (fun a -> a.Range.End.Column) |> List.max
 
@@ -225,7 +225,7 @@ module Formatter =
     (lineNum : int)
     (width : int)
     (annotations : Annotation list)
-    (level : DiagnosticLevel)
+    (_level : DiagnosticLevel)
     =
     match SourceCode.getLine lines lineNum with
     | Some line ->
